@@ -1,9 +1,6 @@
-from dotenv import load_dotenv
 from langchain_ollama.chat_models import ChatOllama
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
-
-load_dotenv()
 
 def get_model(model_name="mistral:latest") -> ChatOllama:
     return ChatOllama(
