@@ -49,6 +49,14 @@ def classification_prompt_template(feedback:str)->ChatPromptTemplate:
 
     return ChatPromptTemplate.from_messages(messages)
 
+def describe_product(content:str)->ChatPromptTemplate:
+    messages = [
+        ("system", "You are an expert in sumarrizing content in a short 2 to 3 sentence paragraph. You use your own language to construct the summary. You also rephrase the sentences. Make it fun to read. You may use emojis unless specified not to."),
+        ("human", "Given the message: {content}, summarize it."),
+    ]
+
+    return ChatPromptTemplate.from_messages(messages)
+
 def get_branches(model:ChatOllama)->RunnableBranch:
 
     return RunnableBranch(
@@ -72,7 +80,8 @@ def main(user_query:str) -> str:
     branches = get_branches(model)
 
     classification_chain = classification_prompt_template | model | StrOutputParser()
-    chain = classification_chain | branches
+    description_chain = RunnableLambda(lambda x: describe_product(x) | model | StrOutputParser())
+    chain = classification_chain | branches | description_chain
     
     return chain.invoke({"feedback":user_query})
 
