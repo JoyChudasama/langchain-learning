@@ -1,5 +1,5 @@
 import os
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings
@@ -25,7 +25,7 @@ def init_db(books_dir:str, persistent_directory:str)->Chroma:
             doc.metadata = {"source": book}
             documents.append(doc)
 
-    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     docs = text_splitter.split_documents(documents)
 
     return Chroma.from_documents(docs, embeddings, persist_directory=persistent_directory)
@@ -33,7 +33,7 @@ def init_db(books_dir:str, persistent_directory:str)->Chroma:
 def releavent_docs(query:str, db:Chroma)->list:
     retriever = db.as_retriever(
         search_type="similarity_score_threshold",
-        search_kwargs={"k": 3, "score_threshold": 0.1},
+        search_kwargs={"k": 1, "score_threshold": 0.2},
     )
 
     return retriever.invoke(query)
